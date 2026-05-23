@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PV+BESS Visual MVP</title>
+<style>
+:root{--ink:#203044;--muted:#66758a;--dc:#ffb43b;--ac:#4abfff;--green:#58d979;--yellow:#ffd85c;--red:#ff6b6b}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);background:radial-gradient(circle at 12% 8%,#fff,transparent 260px),radial-gradient(circle at 88% 10%,#c9f4ff,transparent 320px),linear-gradient(135deg,#f9fdff,#ecfaff,#f5fff1)}
+main{max-width:1220px;margin:auto;padding:18px}
+.top{display:flex;gap:16px;justify-content:space-between;align-items:end;margin-bottom:14px}
+h1{margin:.4rem 0 .25rem;font-size:clamp(1.5rem,4vw,2.5rem);letter-spacing:-.04em;line-height:1}
+p{margin:0;color:var(--muted)}
+.badges,.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions{justify-content:flex-end}
+.badge{border-radius:999px;background:rgba(255,255,255,.75);border:1px solid #fff;padding:6px 10px;font-size:12px;font-weight:800;color:var(--muted)}
+button,select{border:0;border-radius:16px;padding:11px 13px;font-weight:900;cursor:pointer}
+button{background:#203044;color:white;box-shadow:0 10px 24px rgba(32,48,68,.18)}
+button.secondary,select{background:rgba(255,255,255,.82);color:var(--ink);border:1px solid #fff;box-shadow:none}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(340px,.75fr);gap:16px;align-items:start}
+.card{background:rgba(255,255,255,.78);border:1px solid #fff;border-radius:30px;box-shadow:0 18px 50px rgba(60,100,140,.16);backdrop-filter:blur(16px);overflow:hidden}
+.sceneHead{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:14px 16px 5px}
+.title{font-weight:1000}.sub{font-size:12px;color:var(--muted);margin-top:2px}
+.legend{display:flex;gap:7px;font-size:12px;font-weight:1000;color:var(--muted)}
+.pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.7);border-radius:999px;padding:7px 10px}
+.dot{width:10px;height:10px;border-radius:99px;box-shadow:0 0 12px currentColor}
+.scene{position:relative;height:500px;margin:10px 14px 14px;border-radius:34px;overflow:hidden;border:1px solid #fff;background:linear-gradient(145deg,#dff8ff,#fff 52%,#efffe8)}
+.cloud{position:absolute;background:rgba(255,255,255,.65);border-radius:999px}
+.c1{width:94px;height:28px;left:55px;top:38px}.c2{width:150px;height:34px;right:80px;top:44px}
+.island{position:absolute;left:50%;top:55%;width:880px;height:340px;transform:translate(-50%,-50%) rotateX(58deg) rotateZ(-28deg);border-radius:76px;background:linear-gradient(145deg,#b7ed9b,#dcf9c9,#a9eadb);border:2px solid rgba(255,255,255,.82);box-shadow:0 30px 55px rgba(70,116,140,.18),inset 0 0 40px rgba(255,255,255,.42)}
+svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.node{position:absolute;transform:translate(-50%,-50%);transition:.2s;cursor:default}
+.node:hover{transform:translate(-50%,-57%);filter:brightness(1.04)}
+.node:after{content:attr(data-label);position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:7px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.75);color:var(--muted);font-size:10px;font-weight:1000;white-space:nowrap}
+.pv{width:108px;height:74px;border-radius:24px;background:rgba(255,255,255,.76);padding:10px;box-shadow:0 14px 30px rgba(46,94,135,.16)}
+.pvgrid{height:100%;border-radius:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:linear-gradient(145deg,#69c0ff,#2765ba);padding:6px;transform:skewY(-8deg)}
+.pvgrid i{border-radius:3px;background:rgba(255,255,255,.28)}
+.box{width:84px;height:76px;border-radius:25px;background:linear-gradient(145deg,#fff,#effaff);box-shadow:0 14px 32px rgba(55,87,120,.17);display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #fff;font-size:11px;font-weight:1000;color:#5b7087}
+.icon{width:30px;height:30px;border-radius:12px;background:#e7fbff;color:#22a6d9;display:flex;align-items:center;justify-content:center;margin-bottom:5px;font-size:18px}
+.bess{width:108px;height:88px;border-radius:27px;background:linear-gradient(145deg,#fff,#f0fbff);box-shadow:0 14px 32px rgba(55,87,120,.18);padding:11px;border:1px solid #fff}
+.bn{font-size:10px;font-weight:1000;color:#607287}
+.bat{margin-top:9px;height:30px;border-radius:14px;background:#e8eef4;padding:4px;border:2px solid #d9e5ed;position:relative}
+.bat:after{content:"";position:absolute;right:-6px;top:8px;width:7px;height:12px;background:#d9e5ed;border-radius:0 5px 5px 0}
+.fill{height:100%;border-radius:10px;transition:.3s;box-shadow:0 0 15px currentColor}
+.meta{margin-top:5px;display:flex;justify-content:space-between;color:var(--muted);font-size:9px;font-weight:900}
+.tower{width:82px;height:112px;display:flex;align-items:center;justify-content:center;color:#7c8da0}
+.warn{outline:4px solid rgba(255,196,62,.35)}.fault{outline:4px solid rgba(255,96,96,.36)}.off{opacity:.45;filter:grayscale(.9)}
+.side{padding:16px}
+.panelHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+h2{margin:0;font-size:18px}
+textarea{width:100%;min-height:360px;border:1px solid rgba(130,150,170,.25);border-radius:22px;padding:14px;background:rgba(255,255,255,.78);font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;resize:vertical;color:#1e2d42}
+.issues{margin-top:10px;border-radius:18px;padding:10px;background:rgba(255,109,109,.12);color:#a33333;font-size:12px;font-weight:800;display:none}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}
+.stat{background:rgba(255,255,255,.65);border:1px solid #fff;border-radius:20px;padding:11px;font-size:12px;color:var(--muted)}
+.stat b{display:block;margin-top:4px;font-size:17px;color:var(--ink)}
+details{margin-top:12px;border-radius:22px;background:rgba(255,255,255,.58);border:1px solid #fff;padding:10px 12px;color:var(--muted);font-size:13px}
+summary{cursor:pointer;font-weight:1000;color:var(--ink)}
+code{background:rgba(255,255,255,.75);border-radius:7px;padding:2px 5px}
+.flow{fill:none;stroke-width:7;stroke-linecap:round;stroke-dasharray:18 18;animation:dash 1.35s linear infinite;filter:drop-shadow(0 0 8px currentColor)}
+.idle{opacity:.22;animation:none}
+@keyframes dash{to{stroke-dashoffset:-36px}}
+@media(max-width:900px){
+main{padding:12px}.top{flex-direction:column;align-items:flex-start}.actions{justify-content:flex-start;width:100%}button,select{flex:1;min-width:135px}.grid{grid-template-columns:1fr}.scene{height:430px;margin:8px}.island{width:760px;height:310px;transform:translate(-50%,-50%) rotateX(58deg) rotateZ(-28deg) scale(.75)}.node{transform:translate(-50%,-50%) scale(.78)}.node:hover{transform:translate(-50%,-57%) scale(.78)}textarea{min-height:250px}.stats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div>
+      <div class="badges"><span class="badge">MVP 0.1</span><span class="badge">Manual JSON</span><span class="badge">Future LLM-ready</span><span class="badge">Read-only</span></div>
+      <h1>PV+BESS Visual System Prototype</h1>
+      <p>Small, schema-first, mobile-viewable prototype: structured system data drives a consistent soft isometric PV+BESS scene.</p>
+    </div>
+    <div class="actions">
+      <select id="template"><option value="dc">DC-coupled PV+BESS</option><option value="ac">AC-coupled PV+BESS</option><option value="bess">Standalone BESS</option></select>
+      <button id="sim">Simulate State</button><button id="reset" class="secondary">Reset</button>
+    </div>
+  </div>
+  <section class="grid">
+    <article class="card">
+      <div class="sceneHead"><div><div class="title" id="name">System</div><div class="sub" id="meta">schema · fidelity · coupling</div></div><div class="legend"><span class="pill"><span class="dot" style="color:var(--dc);background:var(--dc)"></span>DC</span><span class="pill"><span class="dot" style="color:var(--ac);background:var(--ac)"></span>AC</span></div></div>
+      <div class="scene"><div class="cloud c1"></div><div class="cloud c2"></div><div class="island"></div><svg id="flows"></svg><div id="nodes"></div></div>
+    </article>
+    <aside class="card side">
+      <div class="panelHead"><h2>System Model</h2><span class="badge" id="valid">valid</span></div>
+      <textarea id="editor" spellcheck="false"></textarea><div class="issues" id="issues"></div><div class="stats" id="stats"></div>
+      <details open><summary>Solid-principle boundaries</summary><p style="margin-top:10px">The JSON is the source of truth; the scene is only a renderer. This version separates component IDs, component types, static ratings, dynamic state, and typed AC/DC connections.</p><p style="margin-top:10px">Current fidelity: <code>conceptual_sld</code>. This is not construction-ready design, SCADA control, protection study, or code compliance.</p></details>
+    </aside>
+  </section>
+</main>
+<script>
+const T={
+dc:{schema_version:"0.1.0",fidelity:"conceptual_sld",system:{id:"demo_dc",name:"DC-Coupled PV+BESS Concept",coupling:"dc_coupled",read_only:true},components:[
+{id:"PV_01",type:"pv_array",label:"PV A",zone:"left",capacity_kw_dc:1200,state:{status:"online",dc_kw:860}},
+{id:"PV_02",type:"pv_array",label:"PV B",zone:"left",capacity_kw_dc:1200,state:{status:"online",dc_kw:740}},
+{id:"DC_01",type:"dc_combiner",label:"DC Hub",zone:"center_left",state:{status:"online"}},
+{id:"BESS_01",type:"bess_unit",label:"BESS 1",zone:"lower_center",capacity_kwh:2500,state:{status:"online",soc_percent:84,kw:-350,mode:"charging"}},
+{id:"BESS_02",type:"bess_unit",label:"BESS 2",zone:"lower_center",capacity_kwh:2500,state:{status:"online",soc_percent:52,kw:0,mode:"idle"}},
+{id:"BESS_03",type:"bess_unit",label:"BESS 3",zone:"lower_center",capacity_kwh:2500,state:{status:"warning",soc_percent:18,kw:220,mode:"discharging"}},
+{id:"PCS_01",type:"pcs",label:"PCS",zone:"center_right",capacity_kw_ac:1500,state:{status:"online",ac_kw:1220,mode:"exporting"}},
+{id:"XFMR_01",type:"transformer",label:"XFMR",zone:"right",kva:2000,state:{status:"online",ac_kw:1190}},
+{id:"GRID_01",type:"grid_poi",label:"Grid / POI",zone:"far_right",state:{status:"online",export_kw:1180}}],
+connections:[{id:"C01",from:"PV_01",to:"DC_01",type:"dc_power",flow:"forward"},{id:"C02",from:"PV_02",to:"DC_01",type:"dc_power",flow:"forward"},{id:"C03",from:"DC_01",to:"BESS_01",type:"dc_power",flow:"charging"},{id:"C04",from:"DC_01",to:"BESS_02",type:"dc_power",flow:"idle"},{id:"C05",from:"BESS_03",to:"DC_01",type:"dc_power",flow:"discharging"},{id:"C06",from:"DC_01",to:"PCS_01",type:"dc_power",flow:"forward"},{id:"C07",from:"PCS_01",to:"XFMR_01",type:"ac_power",flow:"export"},{id:"C08",from:"XFMR_01",to:"GRID_01",type:"ac_power",flow:"export"}]},
+ac:{schema_version:"0.1.0",fidelity:"conceptual_sld",system:{id:"demo_ac",name:"AC-Coupled PV+BESS Concept",coupling:"ac_coupled",read_only:true},components:[
+{id:"PV_01",type:"pv_array",label:"PV A",zone:"left",capacity_kw_dc:1000,state:{status:"online",dc_kw:650}},
+{id:"PV_02",type:"pv_array",label:"PV B",zone:"left",capacity_kw_dc:1000,state:{status:"online",dc_kw:690}},
+{id:"PVINV_01",type:"pcs",label:"PV Inv",zone:"center_left",capacity_kw_ac:1500,state:{status:"online",ac_kw:1270}},
+{id:"ACBUS_01",type:"ac_bus",label:"AC Bus",zone:"center",state:{status:"online"}},
+{id:"BESS_01",type:"bess_unit",label:"BESS 1",zone:"lower_center",capacity_kwh:2500,state:{status:"online",soc_percent:76,kw:-260,mode:"charging"}},
+{id:"BESS_02",type:"bess_unit",label:"BESS 2",zone:"lower_center",capacity_kwh:2500,state:{status:"online",soc_percent:44,kw:120,mode:"discharging"}},
+{id:"PCS_01",type:"pcs",label:"BESS PCS",zone:"center_right",capacity_kw_ac:1000,state:{status:"online",ac_kw:380}},
+{id:"XFMR_01",type:"transformer",label:"XFMR",zone:"right",kva:2500,state:{status:"online",ac_kw:1600}},
+{id:"GRID_01",type:"grid_poi",label:"Grid / POI",zone:"far_right",state:{status:"online",export_kw:1550}}],
+connections:[{id:"A01",from:"PV_01",to:"PVINV_01",type:"dc_power",flow:"forward"},{id:"A02",from:"PV_02",to:"PVINV_01",type:"dc_power",flow:"forward"},{id:"A03",from:"PVINV_01",to:"ACBUS_01",type:"ac_power",flow:"export"},{id:"A04",from:"BESS_01",to:"PCS_01",type:"dc_power",flow:"charging"},{id:"A05",from:"BESS_02",to:"PCS_01",type:"dc_power",flow:"discharging"},{id:"A06",from:"PCS_01",to:"ACBUS_01",type:"ac_power",flow:"export"},{id:"A07",from:"ACBUS_01",to:"XFMR_01",type:"ac_power",flow:"export"},{id:"A08",from:"XFMR_01",to:"GRID_01",type:"ac_power",flow:"export"}]},
+bess:{schema_version:"0.1.0",fidelity:"conceptual_sld",system:{id:"demo_bess",name:"Standalone BESS Concept",coupling:"standalone_bess",read_only:true},components:[
+{id:"BESS_01",type:"bess_unit",label:"BESS 1",zone:"lower_center",capacity_kwh:4000,state:{status:"online",soc_percent:91,kw:-250,mode:"charging"}},
+{id:"BESS_02",type:"bess_unit",label:"BESS 2",zone:"lower_center",capacity_kwh:4000,state:{status:"online",soc_percent:61,kw:0,mode:"idle"}},
+{id:"BESS_03",type:"bess_unit",label:"BESS 3",zone:"lower_center",capacity_kwh:4000,state:{status:"online",soc_percent:37,kw:260,mode:"discharging"}},
+{id:"PCS_01",type:"pcs",label:"PCS",zone:"center_right",capacity_kw_ac:2500,state:{status:"online",ac_kw:1450}},
+{id:"XFMR_01",type:"transformer",label:"XFMR",zone:"right",kva:3000,state:{status:"online",ac_kw:1410}},
+{id:"GRID_01",type:"grid_poi",label:"Grid / POI",zone:"far_right",state:{status:"online",export_kw:1400}}],
+connections:[{id:"B01",from:"BESS_01",to:"PCS_01",type:"dc_power",flow:"charging"},{id:"B02",from:"BESS_02",to:"PCS_01",type:"dc_power",flow:"idle"},{id:"B03",from:"BESS_03",to:"PCS_01",type:"dc_power",flow:"discharging"},{id:"B04",from:"PCS_01",to:"XFMR_01",type:"ac_power",flow:"export"},{id:"B05",from:"XFMR_01",to:"GRID_01",type:"ac_power",flow:"export"}]}
+};
+const Z={left:{x:145,y:205},center_left:{x:325,y:210},center:{x:470,y:210},center_right:{x:585,y:210},right:{x:735,y:210},far_right:{x:890,y:210},lower_center:{x:475,y:352}};
+const $=id=>document.getElementById(id),editor=$("editor"),nodes=$("nodes"),flows=$("flows"),issues=$("issues"),valid=$("valid"),nameEl=$("name"),meta=$("meta"),stats=$("stats");
+function cvar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+function socColor(s){return s>=70?cvar("--green"):s>=30?cvar("--yellow"):cvar("--red")}
+function validate(m){let e=[];if(!m.schema_version)e.push("Missing schema_version");if(!m.fidelity)e.push("Missing fidelity");if(!m.system?.coupling)e.push("Missing system.coupling");let ids=new Set((m.components||[]).map(c=>c.id));(m.connections||[]).forEach(c=>{if(!ids.has(c.from))e.push(`${c.id}: missing ${c.from}`);if(!ids.has(c.to))e.push(`${c.id}: missing ${c.to}`);if(!["dc_power","ac_power"].includes(c.type))e.push(`${c.id}: unsupported ${c.type}`)});return e}
+function layout(m){let bz={},pos={};(m.components||[]).forEach(c=>(bz[c.zone]??=[]).push(c));Object.entries(bz).forEach(([z,arr])=>{let b=Z[z]||{x:460,y:250};arr.forEach((c,i)=>{let n=arr.length;if(z==="left")pos[c.id]={x:b.x,y:b.y+(i-(n-1)/2)*95};else if(z==="lower_center")pos[c.id]={x:b.x+(i-(n-1)/2)*125,y:b.y};else pos[c.id]={x:b.x,y:b.y+(i-(n-1)/2)*92}})});return pos}
+function nodeHTML(c,p){let st=c.state?.status||"online",cls=st==="warning"?"warn":st==="fault"?"fault":st==="offline"?"off":"";let base=`class="node ${cls}" data-label="${c.label||c.id}" title="${c.id} · ${c.type}" style="left:${p.x}px;top:${p.y}px"`;if(c.type==="pv_array")return `<div ${base}><div class="pv"><div class="pvgrid">${"<i></i>".repeat(9)}</div></div></div>`;if(c.type==="bess_unit"){let s=Number(c.state?.soc_percent||0),co=socColor(s);return `<div ${base}><div class="bess"><div class="bn">${c.label||c.id}</div><div class="bat"><div class="fill" style="width:${Math.max(6,Math.min(100,s))}%;background:${co};color:${co}"></div></div><div class="meta"><span>${s}%</span><span>${c.state?.mode||""}</span></div></div></div>`}if(c.type==="grid_poi")return `<div ${base}><div class="tower"><svg width="82" height="112" viewBox="0 0 82 112"><path d="M41 8 L15 104 M41 8 L67 104 M25 62 H57 M18 86 H64 M10 35 H72" stroke="#7c8da0" stroke-width="6" stroke-linecap="round"/><path d="M10 35 C22 20 60 20 72 35" stroke="#9fdcff" stroke-width="4" fill="none" stroke-linecap="round"/></svg></div></div>`;let icon=c.type==="dc_combiner"?"⎓":c.type==="ac_bus"?"∿":c.type==="pcs"?"↯":"⚡";return `<div ${base}><div class="box"><div class="icon">${icon}</div><div>${c.label||c.id}</div></div></div>`}
+function render(m){let e=validate(m);valid.textContent=e.length?`${e.length} issue(s)`:"valid";valid.style.color=e.length?"#a33333":"#25874a";issues.style.display=e.length?"block":"none";issues.innerHTML=e.join("<br>");nameEl.textContent=m.system?.name||"Untitled";meta.textContent=`${m.schema_version} · ${m.fidelity} · ${m.system?.coupling}`;let p=layout(m);flows.innerHTML=`<defs><marker id="dcArr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="${cvar("--dc")}"/></marker><marker id="acArr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="${cvar("--ac")}"/></marker></defs>`;(m.connections||[]).forEach(c=>{let a=p[c.from],b=p[c.to];if(!a||!b)return;let col=c.type==="ac_power"?cvar("--ac"):cvar("--dc"),midX=(a.x+b.x)/2,midY=(a.y+b.y)/2-18,mark=c.type==="ac_power"?"url(#acArr)":"url(#dcArr)";flows.innerHTML+=`<path class="flow ${c.flow==="idle"?"idle":""}" d="M ${a.x} ${a.y} Q ${midX} ${midY} ${b.x} ${b.y}" stroke="${col}" style="color:${col}" ${c.flow==="idle"?"":`marker-end="${mark}"`}/>`});nodes.innerHTML=(m.components||[]).map(c=>p[c.id]?nodeHTML(c,p[c.id]):"").join("");let comps=m.components||[],pv=comps.filter(c=>c.type==="pv_array").reduce((s,c)=>s+(+c.state?.dc_kw||0),0),b=comps.filter(c=>c.type==="bess_unit"),soc=b.length?Math.round(b.reduce((s,c)=>s+(+c.state?.soc_percent||0),0)/b.length):0,grid=comps.find(c=>c.type==="grid_poi"),ex=grid?.state?.export_kw||0;stats.innerHTML=`<div class="stat">PV Output<b>${pv} kW</b></div><div class="stat">Avg BESS SOC<b>${soc}%</b></div><div class="stat">Grid Export<b>${ex} kW</b></div>`}
+function load(k){editor.value=JSON.stringify(T[k],null,2);render(T[k])}
+function fromEditor(){try{render(JSON.parse(editor.value))}catch(err){valid.textContent="JSON error";valid.style.color="#a33333";issues.style.display="block";issues.textContent=err.message}}
+function sim(){let m=JSON.parse(editor.value);(m.components||[]).forEach(c=>{c.state??={};if(c.type==="bess_unit"){let s=Math.floor(12+Math.random()*84);c.state.soc_percent=s;c.state.mode=s<35?"charging":s>75?"discharging":"idle";c.state.status=s<22?"warning":"online";c.state.kw=c.state.mode==="charging"?-Math.floor(100+Math.random()*400):c.state.mode==="discharging"?Math.floor(100+Math.random()*400):0}if(c.type==="pv_array")c.state.dc_kw=Math.floor(250+Math.random()*900);if(c.type==="grid_poi")c.state.export_kw=Math.floor(400+Math.random()*1600);if(c.type==="transformer")c.state.ac_kw=Math.floor(400+Math.random()*1600)});editor.value=JSON.stringify(m,null,2);render(m)}
+$("template").onchange=e=>load(e.target.value);$("sim").onclick=sim;$("reset").onclick=()=>load($("template").value);editor.oninput=fromEditor;load("dc");
+</script>
+</body>
+</html>
