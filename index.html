@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>PV+BESS Dynamic MVP</title>
 <style>
-:root{--ink:#203044;--muted:#66758a;--dc:#ffb43b;--ac:#42bbff;--green:#58d979;--yellow:#ffd85c;--red:#ff6868}
+:root{--ink:#203044;--muted:#66758a;--dc:#ffb43b;--ac:#c084fc;--green:#58d979;--yellow:#ffd85c;--red:#ff6868}
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);
 background:radial-gradient(circle at 15% 8%,#fff,transparent 260px),radial-gradient(circle at 90% 6%,#c5f3ff,transparent 340px),linear-gradient(135deg,#f9fdff,#ecfaff,#f5fff1)}
@@ -27,7 +27,7 @@ button.secondary{background:rgba(255,255,255,.82);color:var(--ink);border:1px so
 .scene{position:relative;height:380px;margin:10px 14px 14px;border-radius:34px;overflow:hidden;border:1px solid #fff;background:linear-gradient(145deg,#dff8ff,#fff 52%,#efffe8)}
 .world{position:absolute;left:50%;top:0;width:1000px;height:500px;transform:translateX(-50%) scale(var(--scene-scale,.78));transform-origin:top center}
 .cloud{position:absolute;background:rgba(255,255,255,.65);border-radius:999px}.c1{width:94px;height:28px;left:55px;top:38px}.c2{width:150px;height:34px;right:80px;top:44px}
-.island{position:absolute;left:50%;top:51%;width:960px;height:310px;transform:translate(-50%,0) perspective(420px) rotateX(22deg);transform-origin:50% 0%;border-radius:30px 30px 80px 80px;background:linear-gradient(145deg,#b7ed9b,#dcf9c9,#a9eadb);border:2px solid rgba(255,255,255,.82);box-shadow:0 30px 55px rgba(70,116,140,.18),inset 0 0 40px rgba(255,255,255,.42)}
+.island{position:absolute;left:50%;top:51%;width:960px;height:310px;transform:translate(-50%,0) perspective(420px) rotateX(22deg);transform-origin:50% 0%;border-radius:30px 30px 80px 80px;clip-path:polygon(5% 0%,95% 0%,100% 100%,0% 100%);background:linear-gradient(145deg,#b7ed9b,#dcf9c9,#a9eadb);border:2px solid rgba(255,255,255,.82);box-shadow:0 30px 55px rgba(70,116,140,.18),inset 0 0 40px rgba(255,255,255,.42)}
 svg.flows{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 .node{position:absolute;transform:translate(-50%,-50%);transition:.2s}.node:hover{transform:translate(-50%,-57%);filter:brightness(1.04)}
 .node:after{content:attr(data-label);position:absolute;left:50%;top:50%;transform:translateX(-50%);margin-top:55px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.75);color:var(--muted);font-size:10px;font-weight:1000;white-space:nowrap}
@@ -87,7 +87,7 @@ code{background:rgba(255,255,255,.75);border-radius:7px;padding:2px 5px}
     <article class="card">
       <div class="sceneHead">
         <div><div class="title">5 MWdc PV + 10 MWh BESS</div><div class="sub" id="timeLabel">00:00 · conceptual_sld · DC-coupled</div></div>
-        <div class="legend"><span class="pill"><span class="dot" style="color:var(--dc);background:var(--dc)"></span>DC</span><span class="pill"><span class="dot" style="color:var(--ac);background:var(--ac)"></span>AC</span></div>
+        <div class="legend"><span class="pill"><span class="dot" style="color:#ffb43b;background:#ffb43b"></span>PV</span><span class="pill"><span class="dot" style="color:var(--ac);background:var(--ac)"></span>Grid</span><span class="pill"><span class="dot" style="color:#c87cff;background:#c87cff"></span>BESS ch</span><span class="pill"><span class="dot" style="color:#58d979;background:#58d979"></span>BESS dis</span></div>
       </div>
       <div class="scene" id="scene">
         <div id="skyBg"></div><div id="starsLayer"></div><div id="sunEl"></div><div id="moonEl"></div>
@@ -123,7 +123,7 @@ code{background:rgba(255,255,255,.75);border-radius:7px;padding:2px 5px}
   </section>
 </main>
 <script>
-const P={PV1:{x:100,y:255},PV2:{x:100,y:375},DC:{x:295,y:255},BESS:{x:295,y:375},PCS:{x:490,y:255},XFMR:{x:685,y:255},GRID:{x:880,y:255}};
+const P={PV1:{x:100,y:255},PV2:{x:100,y:450},DC:{x:295,y:255},BESS:{x:295,y:450},PCS:{x:490,y:255},XFMR:{x:685,y:255},GRID:{x:880,y:255}};
 const ports={PV1_r:{x:P.PV1.x+54,y:P.PV1.y},PV2_r:{x:P.PV2.x+54,y:P.PV2.y},DC_l:{x:P.DC.x-44,y:P.DC.y},DC_r:{x:P.DC.x+44,y:P.DC.y},DC_b:{x:P.DC.x,y:P.DC.y+39},BESS_t:{x:P.BESS.x,y:P.BESS.y-47},PCS_l:{x:P.PCS.x-44,y:P.PCS.y},PCS_r:{x:P.PCS.x+44,y:P.PCS.y},XFMR_l:{x:P.XFMR.x-44,y:P.XFMR.y},XFMR_r:{x:P.XFMR.x+44,y:P.XFMR.y},GRID_l:{x:P.GRID.x-41,y:P.GRID.y}};
 const state={t:360,soc:45,playing:false,interval:null,pv:0,charge:0,discharge:0,grid:0,pcs:0,load:0,history:[],chartRange:"24h",chartMetric:"power",touring:false,tourStep:0};
 const TOUR_STEPS=[
