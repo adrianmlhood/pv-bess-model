@@ -40,6 +40,13 @@ svg.flows{position:absolute;inset:0;width:100%;height:100%;overflow:visible;poin
 .bn{font-size:10px;font-weight:1000;color:#607287}.bat{margin-top:9px;height:32px;border-radius:15px;background:#e8eef4;padding:4px;border:2px solid #d9e5ed;position:relative}.bat:after{content:"";position:absolute;right:-6px;top:8px;width:7px;height:13px;background:#d9e5ed;border-radius:0 5px 5px 0}.fill{height:100%;border-radius:10px;transition:.3s;box-shadow:0 0 15px currentColor}.meta{margin-top:5px;display:flex;justify-content:space-between;color:var(--muted);font-size:9px;font-weight:900}
 .tower{width:82px;height:112px;display:flex;align-items:center;justify-content:center;color:#7c8da0}
 .warn{outline:4px solid rgba(255,196,62,.35)}.off{opacity:.45;filter:grayscale(.9)}
+#skyBg{position:absolute;inset:0;border-radius:inherit;z-index:0;transition:background 1.2s ease}
+#starsLayer{position:absolute;inset:0;z-index:1;pointer-events:none;transition:opacity 1.8s ease}
+.star{position:absolute;border-radius:50%;background:#fff;pointer-events:none;animation:twinkle 2.5s ease-in-out infinite alternate}
+@keyframes twinkle{from{opacity:.1}to{opacity:.85}}
+#sunEl{position:absolute;width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fffde0,#ffe040,#ffa500);box-shadow:0 0 30px 12px rgba(255,200,0,.7),0 0 65px 22px rgba(255,165,0,.3);z-index:2;pointer-events:none;transform:translate(-50%,-50%);transition:left .7s,top .7s,opacity 1.3s}
+#moonEl{position:absolute;width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 36% 36%,#fff,#cdd9f0);box-shadow:0 0 16px 7px rgba(180,210,255,.6);z-index:2;pointer-events:none;transform:translate(-50%,-50%);transition:left .7s,top .7s,opacity 1.3s}
+.cloud{z-index:3}.world{z-index:4}
 .side{padding:16px}.panelHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}h2{margin:0;font-size:18px}
 .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.stat{background:rgba(255,255,255,.65);border:1px solid #fff;border-radius:20px;padding:11px;font-size:12px;color:var(--muted)}.stat b{display:block;margin-top:4px;font-size:17px;color:var(--ink)}
 .controls{display:grid;gap:10px;margin:12px 0}.row{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:13px;font-weight:800}.row input{width:55%}
@@ -81,6 +88,7 @@ code{background:rgba(255,255,255,.75);border-radius:7px;padding:2px 5px}
         <div class="legend"><span class="pill"><span class="dot" style="color:var(--dc);background:var(--dc)"></span>DC</span><span class="pill"><span class="dot" style="color:var(--ac);background:var(--ac)"></span>AC</span></div>
       </div>
       <div class="scene" id="scene">
+        <div id="skyBg"></div><div id="starsLayer"></div><div id="sunEl"></div><div id="moonEl"></div>
         <div class="cloud c1"></div><div class="cloud c2"></div>
         <div class="world" id="world"><div class="island"></div><svg class="flows" id="flows" viewBox="0 0 1000 500"></svg><div id="nodes"></div></div>
       </div>
@@ -146,6 +154,35 @@ function energyMWh(field,n){return state.history.slice(-n).reduce((s,h)=>s+h[fie
 function colorSoc(s){return s>=70?"var(--green)":s>=30?"var(--yellow)":"var(--red)"}
 function hms(t){let h=Math.floor(t/60),m=t%60;return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`}
 function flow(id,a,b,type,mw,max,reverse=false){const color=type==="ac"?"var(--ac)":"var(--dc)";const t=Math.min(1,mw/(max||1));const w=3+8*t;const idle=mw<.05;const s=1+0.25*t;const al=+(10*s).toFixed(2);const ah=+(8*s).toFixed(2);const start=reverse?b:a,end=reverse?a:b;const mid=id+"Arr";const marker=`<marker id="${mid}" markerWidth="${al}" markerHeight="${ah}" refX="${al}" refY="${+(ah/2).toFixed(2)}" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L0,${ah} L${al},${+(ah/2).toFixed(2)} z" fill="${color}"/></marker>`;const path=`<path class="flow ${idle?"idle":""}" d="M ${start.x} ${start.y} Q ${(start.x+end.x)/2} ${(start.y+end.y)/2-22} ${end.x} ${end.y}" stroke="${color}" style="color:${color}" stroke-width="${w.toFixed(1)}" marker-end="url(#${mid})"/>`;return{marker,path};}
+function lerpC(a,b,t){return a.map((v,i)=>Math.round(v+(b[i]-v)*Math.max(0,Math.min(1,t))))}
+function skyPalette(t){
+  const h=t/60;
+  const stops=[[0,[5,10,38],[12,20,65]],[4,[12,22,72],[22,38,98]],[5.5,[185,85,55],[255,165,80]],[7,[105,182,235],[215,242,255]],[12,[48,135,212],[185,228,255]],[17,[105,178,232],[212,240,255]],[18.5,[215,82,45],[255,155,75]],[20,[22,32,82],[42,62,125]],[24,[5,10,38],[12,20,65]]];
+  let i0=0;for(let i=0;i<stops.length-1;i++){if(h>=stops[i][0]&&h<stops[i+1][0]){i0=i;break;}}
+  const s0=stops[i0],s1=stops[Math.min(i0+1,stops.length-1)];
+  const f=s1[0]>s0[0]?(h-s0[0])/(s1[0]-s0[0]):0;
+  return{top:lerpC(s0[1],s1[1],f),bot:lerpC(s0[2],s1[2],f)};
+}
+function initStars(){
+  const layer=document.getElementById('starsLayer');if(!layer)return;
+  let html='';
+  for(let i=0;i<55;i++){const x=(Math.random()*96+2).toFixed(1),y=(Math.random()*56+2).toFixed(1),sz=(Math.random()*2+1).toFixed(1),dl=(Math.random()*2.5).toFixed(2);html+=`<div class="star" style="left:${x}%;top:${y}%;width:${sz}px;height:${sz}px;animation-delay:${dl}s"></div>`;}
+  layer.innerHTML=html;
+}
+function updateSky(){
+  const h=state.t/60;
+  const{top,bot}=skyPalette(state.t);
+  const sky=document.getElementById('skyBg');
+  if(sky)sky.style.background=`linear-gradient(to bottom,rgb(${top}) 0%,rgb(${bot}) 100%)`;
+  const sun=document.getElementById('sunEl');
+  if(sun){const inDay=h>=6&&h<=18,prog=Math.max(0,Math.min(1,(h-6)/12));sun.style.left=(8+prog*84).toFixed(1)+'%';sun.style.top=(62-50*Math.sin(prog*Math.PI)).toFixed(1)+'%';sun.style.opacity=inDay?'1':'0';}
+  const moon=document.getElementById('moonEl');
+  if(moon){const inNight=h<6||h>=18;const mp=h>=18?(h-18)/12:(h+6)/12;moon.style.left=(8+mp*84).toFixed(1)+'%';moon.style.top=(62-44*Math.sin(mp*Math.PI)).toFixed(1)+'%';moon.style.opacity=inNight?'0.92':'0';}
+  const stars=document.getElementById('starsLayer');
+  if(stars){const ni=h<=6?Math.max(0,1-h/5.5):h>=18?Math.min(1,(h-18)/5):0;stars.style.opacity=ni.toFixed(3);}
+  const dayF=h>=6&&h<=18?1:h<6?h/6:(24-h)/6;
+  document.querySelectorAll('.cloud').forEach(c=>{c.style.opacity=(0.25+0.75*dayF).toFixed(2);});
+}
 function render(){fit();let p=parms();$("timeLabel").textContent=`${hms(state.t)} · conceptual_sld · 15m step`;let mode=state.charge>.05?"charging":state.discharge>.05?"discharging":"idle";$("mode").textContent=mode;let soc=state.soc, socColor=colorSoc(soc);
 nodes.innerHTML=`
 <div class="node" data-label="PV A" style="left:${P.PV1.x}px;top:${P.PV1.y}px"><div class="pv"><div class="pvgrid">${"<i></i>".repeat(9)}</div></div></div>
@@ -158,12 +195,12 @@ nodes.innerHTML=`
 const f1=flow("f1",ports.PV1_r,ports.DC_l,"dc",state.pv/2,p.pv);const f2=flow("f2",ports.PV2_r,ports.DC_l,"dc",state.pv/2,p.pv);const f3=flow("f3",ports.DC_b,ports.BESS_t,"dc",state.charge+state.discharge,p.pcs,state.discharge>.05);const f4=flow("f4",ports.DC_r,ports.PCS_l,"dc",Math.max(0,state.pv-state.charge+state.discharge),p.pv+p.pcs);const f5=flow("f5",ports.PCS_r,ports.XFMR_l,"ac",state.grid,p.cap);const f6=flow("f6",ports.XFMR_r,ports.GRID_l,"ac",state.grid,p.cap);
 flows.innerHTML=`<defs>${f1.marker}${f2.marker}${f3.marker}${f4.marker}${f5.marker}${f6.marker}</defs>${f1.path}${f2.path}${f3.path}${f4.path}${f5.path}${f6.path}`;
 $("stats").innerHTML=`<div class="stat">Time<b>${hms(state.t)}</b></div><div class="stat">PV Output<b>${state.pv.toFixed(2)} MW</b></div><div class="stat">BESS SOC<b>${state.soc.toFixed(0)}%</b></div><div class="stat">BESS Power<b>${(state.discharge-state.charge).toFixed(2)} MW</b></div><div class="stat">PCS Throughput<b>${state.pcs.toFixed(2)} MW</b></div><div class="stat">Grid Export<b>${state.grid.toFixed(2)} MW</b></div>`;
-drawSpider();renderMeter();renderChart()}
+updateSky();drawSpider();renderMeter();renderChart()}
 function drawSpider(){let p=parms(),vals=[state.pv/p.pv,state.soc/100,state.pcs/p.pcs,state.grid/p.cap,state.load/1.5].map(v=>Math.max(0,Math.min(1,v)));let cx=130,cy=112,r=78,labels=["PV","SOC","PCS","Grid","Load"];let pts=vals.map((v,i)=>{let a=-Math.PI/2+i*2*Math.PI/5;return[cx+Math.cos(a)*r*v,cy+Math.sin(a)*r*v]});let axes=labels.map((l,i)=>{let a=-Math.PI/2+i*2*Math.PI/5,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r,tx=cx+Math.cos(a)*(r+20),ty=cy+Math.sin(a)*(r+20);return`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#d2e2ee"/><text x="${tx}" y="${ty}" text-anchor="middle" font-size="11" font-weight="900" fill="#66758a">${l}</text>`}).join("");$("spider").innerHTML=`${axes}<polygon points="${pts.map(p=>p.join(",")).join(" ")}" fill="rgba(74,191,255,.25)" stroke="var(--ac)" stroke-width="3"/><circle cx="${cx}" cy="${cy}" r="3" fill="var(--ink)"/>`}
 function renderChart(){const svg=$("chart"),leg=$("chartLegend");if(!svg)return;const n=state.chartRange==="24h"?96:672;const data=state.history.slice(-n);if(!data.length){svg.innerHTML="";if(leg)leg.innerHTML="";return;}const PW=CW-CML-CMR,PH=CH-CMT-CMB;const xOf=i=>CML+(i/Math.max(data.length-1,1))*PW;let series;if(state.chartMetric==="power"){series=[{label:"PV Gen",color:CHART_COLORS.pv,vals:data.map(h=>h.pv)},{label:"BESS Dis",color:CHART_COLORS.dis,vals:data.map(h=>h.discharge)},{label:"BESS Chg",color:CHART_COLORS.chg,vals:data.map(h=>h.charge)},{label:"Grid Export",color:CHART_COLORS.grid,vals:data.map(h=>h.grid)}];}else{const acc={pv:0,dis:0,chg:0,grid:0};const cum=data.map(h=>({pv:(acc.pv+=h.pv*0.25),dis:(acc.dis+=h.discharge*0.25),chg:(acc.chg+=h.charge*0.25),grid:(acc.grid+=h.grid*0.25)}));series=[{label:"PV MWh",color:CHART_COLORS.pv,vals:cum.map(c=>c.pv)},{label:"BESS Dis MWh",color:CHART_COLORS.dis,vals:cum.map(c=>c.dis)},{label:"BESS Chg MWh",color:CHART_COLORS.chg,vals:cum.map(c=>c.chg)},{label:"Export MWh",color:CHART_COLORS.grid,vals:cum.map(c=>c.grid)}];}const rawMax=Math.max(...series.flatMap(s=>s.vals),0.01);const yMax=[0.5,1,2,5,10,20,50,100,200,500].find(v=>v>=rawMax)||rawMax;const yOf=v=>CMT+PH-(v/yMax)*PH;const unit=state.chartMetric==="power"?"MW":"MWh";let out="";[0,.25,.5,.75,1].forEach(f=>{const y=yOf(yMax*f).toFixed(1);const val=(yMax*f).toFixed(yMax*f===0?0:yMax*f<1?2:1);out+=`<line x1="${CML}" y1="${y}" x2="${CW-CMR}" y2="${y}" stroke="#d2e2ee" stroke-width="1"/>`;out+=`<text x="${CML-4}" y="${+y+4}" text-anchor="end" font-size="10" fill="#66758a" font-weight="900">${val}</text>`;});out+=`<text x="${CML-2}" y="${CMT-3}" text-anchor="end" font-size="10" fill="#66758a" font-weight="700">${unit}</text>`;const xLabels=state.chartRange==="24h"?[["+0h",0],["+6h",.25],["+12h",.5],["+18h",.75],["+24h",1]]:Array.from({length:7},(_,i)=>[`D${i+1}`,i/6]);xLabels.forEach(([lbl,frac])=>{const x=(CML+frac*PW).toFixed(1);out+=`<line x1="${x}" y1="${CMT}" x2="${x}" y2="${CH-CMB}" stroke="#d2e2ee" stroke-width="1" stroke-dasharray="3 3"/>`;out+=`<text x="${x}" y="${CH-CMB+14}" text-anchor="middle" font-size="10" fill="#66758a" font-weight="900">${lbl}</text>`;});series.forEach(s=>{const pts=s.vals.map((v,i)=>`${xOf(i).toFixed(1)},${yOf(v).toFixed(1)}`).join(" ");out+=`<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>`;});svg.innerHTML=out;if(leg)leg.innerHTML=series.map(s=>`<span><i style="background:${s.color}"></i>${s.label}</span>`).join("");}
 function renderMeter(){const dt=0.25;function totals(field){return{now:state[field].toFixed(2),m15:energyMWh(field,1).toFixed(3),h1:energyMWh(field,4).toFixed(2),h4:energyMWh(field,16).toFixed(2),run:(state.history.reduce((s,h)=>s+h[field],0)*dt).toFixed(1)}}const rows=[["PV Generation",totals("pv")],["BESS Charge",totals("charge")],["BESS Discharge",totals("discharge")],["Grid Export",totals("grid")]];$("meterTable").innerHTML=`<tr><th>Metric</th><th>Now MW</th><th>15 min MWh</th><th>1 h MWh</th><th>4 h MWh</th><th>Run MWh</th></tr>${rows.map(([label,v])=>`<tr><td>${label}</td><td><b>${v.now}</b></td><td>${v.m15}</td><td>${v.h1}</td><td>${v.h4}</td><td>${v.run}</td></tr>`).join("")}`}
 function play(){state.playing=!state.playing;$("play").textContent=state.playing?"Pause":"Play 24h";if(state.playing){state.interval=setInterval(()=>step(15),Math.max(50,450/parms().speed))}else clearInterval(state.interval)}
-$("play").onclick=play;$("step").onclick=()=>step(15);$("reset").onclick=()=>{state.t=360;state.soc=45;state.pv=state.charge=state.discharge=state.grid=state.pcs=0;state.history=[];render()};["pvSize","bessSize","pcsSize","exportCap","speed"].forEach(id=>{const el=$(id),val=$(id+"Val");el.oninput=()=>{if(val)val.textContent=el.value;render()};});["chartRange","chartMetric"].forEach(groupId=>{const grp=$(groupId);if(!grp)return;grp.querySelectorAll(".tBtn").forEach(btn=>{btn.onclick=()=>{state[groupId]=btn.dataset.v;grp.querySelectorAll(".tBtn").forEach(b=>b.classList.toggle("active",b===btn));renderChart();};});});window.addEventListener("resize",fit);render();
+$("play").onclick=play;$("step").onclick=()=>step(15);$("reset").onclick=()=>{state.t=360;state.soc=45;state.pv=state.charge=state.discharge=state.grid=state.pcs=0;state.history=[];render()};["pvSize","bessSize","pcsSize","exportCap","speed"].forEach(id=>{const el=$(id),val=$(id+"Val");el.oninput=()=>{if(val)val.textContent=el.value;render()};});["chartRange","chartMetric"].forEach(groupId=>{const grp=$(groupId);if(!grp)return;grp.querySelectorAll(".tBtn").forEach(btn=>{btn.onclick=()=>{state[groupId]=btn.dataset.v;grp.querySelectorAll(".tBtn").forEach(b=>b.classList.toggle("active",b===btn));renderChart();};});});window.addEventListener("resize",fit);initStars();render();
 </script>
 </body>
 </html>
