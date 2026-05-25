@@ -62,6 +62,14 @@ code{background:rgba(255,255,255,.75);border-radius:7px;padding:2px 5px}
 .chartLegend span{display:flex;align-items:center;gap:5px}
 .chartLegend i{display:inline-block;width:20px;height:3px;border-radius:2px}
 .meter{margin-top:16px}
+#tourSpot{display:none;position:absolute;border-radius:50%;width:72px;height:72px;transform:translate(-50%,-50%);border:3px solid rgba(255,255,255,.85);box-shadow:0 0 0 5px rgba(74,191,255,.45),0 0 24px rgba(74,191,255,.35);pointer-events:none;z-index:9;animation:spotPulse 1.6s ease-in-out infinite}
+@keyframes spotPulse{0%,100%{box-shadow:0 0 0 5px rgba(74,191,255,.45),0 0 24px rgba(74,191,255,.35)}50%{box-shadow:0 0 0 10px rgba(74,191,255,.2),0 0 36px rgba(74,191,255,.25)}}
+#tourBubble{display:none;position:absolute;z-index:10;background:rgba(255,255,255,.96);border:1px solid #fff;border-radius:20px;padding:14px 16px;width:220px;box-shadow:0 8px 30px rgba(32,48,68,.22);pointer-events:all}
+#tourTitle{font-weight:1000;font-size:13px;color:var(--ink);margin-bottom:6px}
+#tourBody{font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:10px}
+#tourNav{display:flex;align-items:center;gap:6px}
+#tourProg{font-size:11px;font-weight:900;color:var(--muted);flex:1}
+#tourBubble button{padding:5px 11px;font-size:12px;border-radius:10px}
 @media(max-width:900px){main{padding:12px}.top{flex-direction:column;align-items:flex-start}.actions{justify-content:flex-start;width:100%}button{flex:1;min-width:110px}.grid{grid-template-columns:1fr}.scene{height:430px;margin:8px}.stats{grid-template-columns:1fr}.spider{height:200px}}
 </style>
 </head>
@@ -73,7 +81,7 @@ code{background:rgba(255,255,255,.75);border-radius:7px;padding:2px 5px}
       <h1>PV+BESS Dynamic Visual Prototype</h1>
       <p>Simple fast-time simulation: PV profile, export cap, BESS charge/discharge, SOC, and live AC/DC visual flow.</p>
     </div>
-    <div class="actions"><button id="play">Play 24h</button><button id="step">Step 15m</button><button id="reset" class="secondary">Reset</button></div>
+    <div class="actions"><button id="play">Play 24h</button><button id="step">Step 15m</button><button id="tour" class="secondary">Tour</button><button id="reset" class="secondary">Reset</button></div>
   </div>
   <section class="grid">
     <article class="card">
@@ -85,6 +93,8 @@ code{background:rgba(255,255,255,.75);border-radius:7px;padding:2px 5px}
         <div id="skyBg"></div><div id="starsLayer"></div><div id="sunEl"></div><div id="moonEl"></div>
         <div class="cloud c1"></div><div class="cloud c2"></div>
         <div class="world" id="world"><div class="island"></div><svg class="flows" id="flows" viewBox="0 0 1000 500"></svg><div id="nodes"></div></div>
+        <div id="tourSpot"></div>
+        <div id="tourBubble"><div id="tourTitle"></div><div id="tourBody"></div><div id="tourNav"><span id="tourProg"></span><button id="tourNext">Next →</button><button id="tourExit" class="secondary">Exit</button></div></div>
       </div>
     </article>
     <aside class="card side">
@@ -129,7 +139,17 @@ code{background:rgba(255,255,255,.75);border-radius:7px;padding:2px 5px}
 <script>
 const P={PV1:{x:140,y:165},PV2:{x:140,y:255},DC:{x:335,y:210},BESS:{x:480,y:350},PCS:{x:585,y:210},XFMR:{x:745,y:210},GRID:{x:890,y:210}};
 const ports={PV1_r:{x:P.PV1.x+54,y:P.PV1.y},PV2_r:{x:P.PV2.x+54,y:P.PV2.y},DC_l:{x:P.DC.x-44,y:P.DC.y},DC_r:{x:P.DC.x+44,y:P.DC.y},DC_b:{x:P.DC.x,y:P.DC.y+39},BESS_t:{x:P.BESS.x,y:P.BESS.y-47},PCS_l:{x:P.PCS.x-44,y:P.PCS.y},PCS_r:{x:P.PCS.x+44,y:P.PCS.y},XFMR_l:{x:P.XFMR.x-44,y:P.XFMR.y},XFMR_r:{x:P.XFMR.x+44,y:P.XFMR.y},GRID_l:{x:P.GRID.x-41,y:P.GRID.y}};
-const state={t:360,soc:45,playing:false,interval:null,pv:0,charge:0,discharge:0,grid:0,pcs:0,load:0,history:[],chartRange:"24h",chartMetric:"power"};
+const state={t:360,soc:45,playing:false,interval:null,pv:0,charge:0,discharge:0,grid:0,pcs:0,load:0,history:[],chartRange:"24h",chartMetric:"power",touring:false,tourStep:0};
+const TOUR_STEPS=[
+  {t:360, title:"06:00 · Sunrise",        body:"The sun rises and PV panels begin generating their first DC power — faintly at first.",                              node:"PV1"},
+  {t:480, title:"08:00 · Morning ramp",   body:"PV output climbs fast. Surplus beyond the export cap flows into the BESS, which starts charging.",                  node:"BESS"},
+  {t:720, title:"12:00 · Solar peak",     body:"Peak irradiance. PV is at maximum output and the BESS is charging at the full PCS rate.",                           node:"PV1"},
+  {t:960, title:"16:00 · Afternoon fade", body:"PV output begins declining. The BESS is near full charge, ready for the evening peak.",                             node:"BESS"},
+  {t:1080,title:"18:00 · Sunset",         body:"PV drops to zero. The BESS begins discharging through the PCS to maintain grid export without solar.",              node:"PCS"},
+  {t:1140,title:"19:00 · Evening peak",   body:"Site load peaks. The BESS discharges at maximum PCS power to cover demand and hold export steady.",                 node:"GRID"},
+  {t:1320,title:"22:00 · Winding down",   body:"Load eases off. SOC is falling — the battery must stretch remaining charge until sunrise.",                         node:"BESS"},
+  {t:60,  title:"01:00 · Overnight",      body:"Deep night. No PV, minimal load. The system idles quietly, waiting for the sun to return.",                         node:"GRID"},
+];
 const CHART_COLORS={pv:"#ffb43b",dis:"#58d979",chg:"#c87cff",grid:"#42bbff"};
 const CML=44,CMR=12,CMT=14,CMB=28,CW=620,CH=240;
 const $=id=>document.getElementById(id),nodes=$("nodes"),flows=$("flows"),scene=$("scene"),world=$("world");
@@ -141,6 +161,24 @@ function step(minutes=15){let p=parms(),dt=minutes/60, pv=solar(state.t,p.pv), l
 function colorSoc(s){return s>=70?"var(--green)":s>=30?"var(--yellow)":"var(--red)"}
 function hms(t){let h=Math.floor(t/60),m=t%60;return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`}
 function flow(id,a,b,type,mw,max,reverse=false){const color=type==="ac"?"var(--ac)":"var(--dc)";const t=Math.min(1,mw/(max||1));const w=3+8*t;const idle=mw<.05;const s=1+0.25*t;const al=+(10*s).toFixed(2);const ah=+(8*s).toFixed(2);const start=reverse?b:a,end=reverse?a:b;const mid=id+"Arr";const marker=`<marker id="${mid}" markerWidth="${al}" markerHeight="${ah}" refX="${al}" refY="${+(ah/2).toFixed(2)}" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L0,${ah} L${al},${+(ah/2).toFixed(2)} z" fill="${color}"/></marker>`;const path=`<path class="flow ${idle?"idle":""}" d="M ${start.x} ${start.y} Q ${(start.x+end.x)/2} ${(start.y+end.y)/2-22} ${end.x} ${end.y}" stroke="${color}" style="color:${color}" stroke-width="${w.toFixed(1)}" marker-end="url(#${mid})"/>`;return{marker,path};}
+function worldToScene(nodeKey){const s=parseFloat(world.style.getPropertyValue('--scene-scale'))||0.78;return{x:scene.clientWidth/2+(P[nodeKey].x-500)*s,y:P[nodeKey].y*s};}
+function showTourStep(i){
+  const step=TOUR_STEPS[i];
+  state.t=step.t;render();
+  const pos=worldToScene(step.node);
+  const spot=$('tourSpot');spot.style.left=pos.x+'px';spot.style.top=pos.y+'px';spot.style.display='block';
+  const bub=$('tourBubble');bub.style.display='block';
+  const bw=236,bh=150,pad=14,sw=scene.clientWidth,sh=scene.clientHeight;
+  let bx=pos.x+52,by=pos.y-bh/2;
+  if(bx+bw>sw-pad)bx=pos.x-bw-52;if(bx<pad)bx=pad;
+  by=Math.max(pad,Math.min(by,sh-bh-pad));
+  bub.style.left=bx+'px';bub.style.top=by+'px';
+  $('tourTitle').textContent=step.title;$('tourBody').textContent=step.body;
+  $('tourProg').textContent=`${i+1} / ${TOUR_STEPS.length}`;
+  $('tourNext').textContent=i<TOUR_STEPS.length-1?'Next →':'Finish';
+}
+function startTour(){if(state.playing)play();state.touring=true;state.tourStep=0;$('tour').textContent='Touring…';showTourStep(0);}
+function exitTour(){state.touring=false;$('tourSpot').style.display='none';$('tourBubble').style.display='none';$('tour').textContent='Tour';}
 function lerpC(a,b,t){return a.map((v,i)=>Math.round(v+(b[i]-v)*Math.max(0,Math.min(1,t))))}
 function skyPalette(t){
   const h=t/60;
@@ -188,7 +226,7 @@ updateSky();drawSpider();renderChart()}
 function drawSpider(){let p=parms(),vals=[state.pv/p.pv,state.soc/100,state.pcs/p.pcs,state.grid/p.cap,state.load/1.5].map(v=>Math.max(0,Math.min(1,v)));let cx=130,cy=112,r=78,labels=["PV","SOC","PCS","Grid","Load"];let pts=vals.map((v,i)=>{let a=-Math.PI/2+i*2*Math.PI/5;return[cx+Math.cos(a)*r*v,cy+Math.sin(a)*r*v]});let axes=labels.map((l,i)=>{let a=-Math.PI/2+i*2*Math.PI/5,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r,tx=cx+Math.cos(a)*(r+20),ty=cy+Math.sin(a)*(r+20);return`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#d2e2ee"/><text x="${tx}" y="${ty}" text-anchor="middle" font-size="11" font-weight="900" fill="#66758a">${l}</text>`}).join("");$("spider").innerHTML=`${axes}<polygon points="${pts.map(p=>p.join(",")).join(" ")}" fill="rgba(74,191,255,.25)" stroke="var(--ac)" stroke-width="3"/><circle cx="${cx}" cy="${cy}" r="3" fill="var(--ink)"/>`}
 function renderChart(){const svg=$("chart"),leg=$("chartLegend");if(!svg)return;const n=state.chartRange==="24h"?96:672;const data=state.history.slice(-n);if(!data.length){svg.innerHTML="";if(leg)leg.innerHTML="";return;}const PW=CW-CML-CMR,PH=CH-CMT-CMB;const xOf=i=>CML+(i/Math.max(data.length-1,1))*PW;let series;if(state.chartMetric==="power"){series=[{label:"PV Gen",color:CHART_COLORS.pv,vals:data.map(h=>h.pv),current:state.pv},{label:"BESS Dis",color:CHART_COLORS.dis,vals:data.map(h=>h.discharge),current:state.discharge},{label:"BESS Chg",color:CHART_COLORS.chg,vals:data.map(h=>h.charge),current:state.charge},{label:"Grid Export",color:CHART_COLORS.grid,vals:data.map(h=>h.grid),current:state.grid}];}else{const acc={pv:0,dis:0,chg:0,grid:0};const cum=data.map(h=>({pv:(acc.pv+=h.pv*0.25),dis:(acc.dis+=h.discharge*0.25),chg:(acc.chg+=h.charge*0.25),grid:(acc.grid+=h.grid*0.25)}));const last=cum.length?cum[cum.length-1]:{pv:0,dis:0,chg:0,grid:0};series=[{label:"PV MWh",color:CHART_COLORS.pv,vals:cum.map(c=>c.pv),current:last.pv},{label:"BESS Dis MWh",color:CHART_COLORS.dis,vals:cum.map(c=>c.dis),current:last.dis},{label:"BESS Chg MWh",color:CHART_COLORS.chg,vals:cum.map(c=>c.chg),current:last.chg},{label:"Export MWh",color:CHART_COLORS.grid,vals:cum.map(c=>c.grid),current:last.grid}];}const rawMax=Math.max(...series.flatMap(s=>s.vals),0.01);const yMax=[0.5,1,2,5,10,20,50,100,200,500].find(v=>v>=rawMax)||rawMax;const yOf=v=>CMT+PH-(v/yMax)*PH;const unit=state.chartMetric==="power"?"MW":"MWh";let out="";[0,.25,.5,.75,1].forEach(f=>{const y=yOf(yMax*f).toFixed(1);const val=(yMax*f).toFixed(yMax*f===0?0:yMax*f<1?2:1);out+=`<line x1="${CML}" y1="${y}" x2="${CW-CMR}" y2="${y}" stroke="#d2e2ee" stroke-width="1"/>`;out+=`<text x="${CML-4}" y="${+y+4}" text-anchor="end" font-size="10" fill="#66758a" font-weight="900">${val}</text>`;});out+=`<text x="${CML-2}" y="${CMT-3}" text-anchor="end" font-size="10" fill="#66758a" font-weight="700">${unit}</text>`;const xLabels=state.chartRange==="24h"?[["+0h",0],["+6h",.25],["+12h",.5],["+18h",.75],["+24h",1]]:Array.from({length:7},(_,i)=>[`D${i+1}`,i/6]);xLabels.forEach(([lbl,frac])=>{const x=(CML+frac*PW).toFixed(1);out+=`<line x1="${x}" y1="${CMT}" x2="${x}" y2="${CH-CMB}" stroke="#d2e2ee" stroke-width="1" stroke-dasharray="3 3"/>`;out+=`<text x="${x}" y="${CH-CMB+14}" text-anchor="middle" font-size="10" fill="#66758a" font-weight="900">${lbl}</text>`;});series.forEach(s=>{const pts=s.vals.map((v,i)=>`${xOf(i).toFixed(1)},${yOf(v).toFixed(1)}`).join(" ");out+=`<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>`;});svg.innerHTML=out;if(leg)leg.innerHTML=series.map(s=>`<span><i style="background:${s.color}"></i>${s.label}<b style="margin-left:5px;color:var(--ink)">${s.current.toFixed(2)} ${unit}</b></span>`).join("");}
 function play(){state.playing=!state.playing;$("play").textContent=state.playing?"Pause":"Play 24h";if(state.playing){state.interval=setInterval(()=>step(15),Math.max(50,450/parms().speed))}else clearInterval(state.interval)}
-$("play").onclick=play;$("step").onclick=()=>step(15);$("reset").onclick=()=>{state.t=360;state.soc=45;state.pv=state.charge=state.discharge=state.grid=state.pcs=0;state.history=[];render()};["pvSize","bessSize","pcsSize","exportCap","speed"].forEach(id=>{const el=$(id),val=$(id+"Val");el.oninput=()=>{if(val)val.textContent=el.value;render()};});["chartRange","chartMetric"].forEach(groupId=>{const grp=$(groupId);if(!grp)return;grp.querySelectorAll(".tBtn").forEach(btn=>{btn.onclick=()=>{state[groupId]=btn.dataset.v;grp.querySelectorAll(".tBtn").forEach(b=>b.classList.toggle("active",b===btn));renderChart();};});});window.addEventListener("resize",fit);initStars();render();
+$("play").onclick=play;$("step").onclick=()=>step(15);$("tour").onclick=startTour;$("tourNext").onclick=()=>{const next=state.tourStep+1;if(next<TOUR_STEPS.length){state.tourStep=next;showTourStep(next);}else exitTour();};$("tourExit").onclick=exitTour;$("reset").onclick=()=>{state.t=360;state.soc=45;state.pv=state.charge=state.discharge=state.grid=state.pcs=0;state.history=[];render()};["pvSize","bessSize","pcsSize","exportCap","speed"].forEach(id=>{const el=$(id),val=$(id+"Val");el.oninput=()=>{if(val)val.textContent=el.value;render()};});["chartRange","chartMetric"].forEach(groupId=>{const grp=$(groupId);if(!grp)return;grp.querySelectorAll(".tBtn").forEach(btn=>{btn.onclick=()=>{state[groupId]=btn.dataset.v;grp.querySelectorAll(".tBtn").forEach(b=>b.classList.toggle("active",b===btn));renderChart();};});});window.addEventListener("resize",fit);initStars();render();
 </script>
 </body>
 </html>
