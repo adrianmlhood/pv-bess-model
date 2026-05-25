@@ -174,10 +174,12 @@ function updateSky(){
   const{top,bot}=skyPalette(state.t);
   const sky=document.getElementById('skyBg');
   if(sky)sky.style.background=`linear-gradient(to bottom,rgb(${top}) 0%,rgb(${bot}) 100%)`;
+  function arcPos(phase){const ax=(phase-.25)/.5;return{x:(8+ax*84).toFixed(1),y:(62-50*Math.sin(ax*Math.PI)).toFixed(1)};}
+  const sPhase=(h/24)%1,mPhase=((h+12)/24)%1;
   const sun=document.getElementById('sunEl');
-  if(sun){const inDay=h>=6&&h<=18,prog=Math.max(0,Math.min(1,(h-6)/12));sun.style.left=(8+prog*84).toFixed(1)+'%';sun.style.top=(62-50*Math.sin(prog*Math.PI)).toFixed(1)+'%';sun.style.opacity=inDay?'1':'0';}
+  if(sun){const{x,y}=arcPos(sPhase);sun.style.left=x+'%';sun.style.top=y+'%';sun.style.opacity=sPhase>=.25&&sPhase<=.75?'1':'0';}
   const moon=document.getElementById('moonEl');
-  if(moon){const inNight=h<6||h>=18;const mp=h>=18?(h-18)/12:(h+6)/12;moon.style.left=(8+mp*84).toFixed(1)+'%';moon.style.top=(62-44*Math.sin(mp*Math.PI)).toFixed(1)+'%';moon.style.opacity=inNight?'0.92':'0';}
+  if(moon){const{x,y}=arcPos(mPhase);moon.style.left=x+'%';moon.style.top=y+'%';moon.style.opacity=mPhase>=.25&&mPhase<=.75?'0.92':'0';}
   const stars=document.getElementById('starsLayer');
   if(stars){const ni=h<=6?Math.max(0,1-h/5.5):h>=18?Math.min(1,(h-18)/5):0;stars.style.opacity=ni.toFixed(3);}
   const dayF=h>=6&&h<=18?1:h<6?h/6:(24-h)/6;
