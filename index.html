@@ -123,7 +123,7 @@ code{background:rgba(255,255,255,.75);border-radius:7px;padding:2px 5px}
   </section>
 </main>
 <script>
-const P={PV1:{x:140,y:175},PV2:{x:140,y:330},DC:{x:335,y:255},BESS:{x:480,y:345},PCS:{x:585,y:255},XFMR:{x:745,y:255},GRID:{x:890,y:255}};
+const P={PV1:{x:140,y:255},PV2:{x:140,y:345},DC:{x:335,y:255},BESS:{x:335,y:365},PCS:{x:585,y:255},XFMR:{x:745,y:255},GRID:{x:890,y:255}};
 const ports={PV1_r:{x:P.PV1.x+54,y:P.PV1.y},PV2_r:{x:P.PV2.x+54,y:P.PV2.y},DC_l:{x:P.DC.x-44,y:P.DC.y},DC_r:{x:P.DC.x+44,y:P.DC.y},DC_b:{x:P.DC.x,y:P.DC.y+39},BESS_t:{x:P.BESS.x,y:P.BESS.y-47},PCS_l:{x:P.PCS.x-44,y:P.PCS.y},PCS_r:{x:P.PCS.x+44,y:P.PCS.y},XFMR_l:{x:P.XFMR.x-44,y:P.XFMR.y},XFMR_r:{x:P.XFMR.x+44,y:P.XFMR.y},GRID_l:{x:P.GRID.x-41,y:P.GRID.y}};
 const state={t:360,soc:45,playing:false,interval:null,pv:0,charge:0,discharge:0,grid:0,pcs:0,load:0,history:[],chartRange:"24h",chartMetric:"power",touring:false,tourStep:0};
 const TOUR_STEPS=[
