@@ -207,7 +207,7 @@ function updateSky(){
   const{top,bot}=skyPalette(state.t);
   const sky=document.getElementById('skyBg');
   if(sky)sky.style.background=`linear-gradient(to bottom,rgb(${top}) 0%,rgb(${bot}) 100%)`;
-  function arcPos(phase){const ax=(phase-.25)/.5;return{x:(8+ax*84).toFixed(1),y:(68-55*Math.sin(ax*Math.PI)).toFixed(1)};}
+  function arcPos(phase){const ax=(phase-.25)/.5;return{x:(1.7+ax*96.6).toFixed(1),y:(68-63.25*Math.sin(ax*Math.PI)).toFixed(1)};}
   const sPhase=(h/24)%1,mPhase=((h+12)/24)%1;
   const sun=document.getElementById('sunEl');
   if(sun){const{x,y}=arcPos(sPhase);sun.style.left=x+'%';sun.style.top=y+'%';sun.style.opacity=sPhase>=.25&&sPhase<=.75?'1':'0';}
