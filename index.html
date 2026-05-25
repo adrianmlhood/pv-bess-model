@@ -25,7 +25,7 @@ button.secondary{background:rgba(255,255,255,.82);color:var(--ink);border:1px so
 .pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.7);border-radius:999px;padding:7px 10px}
 .dot{width:10px;height:10px;border-radius:99px;box-shadow:0 0 12px currentColor}
 .scene{position:relative;height:380px;margin:10px 14px 14px;border-radius:34px;overflow:hidden;border:1px solid #fff;background:linear-gradient(145deg,#dff8ff,#fff 52%,#efffe8)}
-.world{position:absolute;left:50%;bottom:0;width:1000px;height:500px;transform:translateX(-50%) scale(var(--scene-scale,.78));transform-origin:bottom center}
+.world{position:absolute;left:50%;top:0;width:1000px;height:500px;transform:translateX(-50%) scale(var(--scene-scale,.78));transform-origin:top center}
 .cloud{position:absolute;background:rgba(255,255,255,.65);border-radius:999px}.c1{width:94px;height:28px;left:55px;top:38px}.c2{width:150px;height:34px;right:80px;top:44px}
 .island{position:absolute;left:50%;top:58%;width:880px;height:340px;transform:translate(-50%,-50%) rotateX(58deg) rotateZ(-28deg);border-radius:76px;background:linear-gradient(145deg,#b7ed9b,#dcf9c9,#a9eadb);border:2px solid rgba(255,255,255,.82);box-shadow:0 30px 55px rgba(70,116,140,.18),inset 0 0 40px rgba(255,255,255,.42)}
 svg.flows{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
@@ -123,7 +123,7 @@ code{background:rgba(255,255,255,.75);border-radius:7px;padding:2px 5px}
   </section>
 </main>
 <script>
-const P={PV1:{x:140,y:305},PV2:{x:140,y:390},DC:{x:335,y:350},BESS:{x:480,y:420},PCS:{x:585,y:350},XFMR:{x:745,y:350},GRID:{x:890,y:350}};
+const P={PV1:{x:140,y:230},PV2:{x:140,y:315},DC:{x:335,y:275},BESS:{x:480,y:375},PCS:{x:585,y:275},XFMR:{x:745,y:275},GRID:{x:890,y:275}};
 const ports={PV1_r:{x:P.PV1.x+54,y:P.PV1.y},PV2_r:{x:P.PV2.x+54,y:P.PV2.y},DC_l:{x:P.DC.x-44,y:P.DC.y},DC_r:{x:P.DC.x+44,y:P.DC.y},DC_b:{x:P.DC.x,y:P.DC.y+39},BESS_t:{x:P.BESS.x,y:P.BESS.y-47},PCS_l:{x:P.PCS.x-44,y:P.PCS.y},PCS_r:{x:P.PCS.x+44,y:P.PCS.y},XFMR_l:{x:P.XFMR.x-44,y:P.XFMR.y},XFMR_r:{x:P.XFMR.x+44,y:P.XFMR.y},GRID_l:{x:P.GRID.x-41,y:P.GRID.y}};
 const state={t:360,soc:45,playing:false,interval:null,pv:0,charge:0,discharge:0,grid:0,pcs:0,load:0,history:[],chartRange:"24h",chartMetric:"power",touring:false,tourStep:0};
 const TOUR_STEPS=[
@@ -147,7 +147,7 @@ function step(minutes=15){let p=parms(),dt=minutes/60, pv=solar(state.t,p.pv), l
 function colorSoc(s){return s>=70?"var(--green)":s>=30?"var(--yellow)":"var(--red)"}
 function hms(t){let h=Math.floor(t/60),m=t%60;return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`}
 function flow(id,a,b,type,mw,max,reverse=false){const color=type==="ac"?"var(--ac)":"var(--dc)";const t=Math.min(1,mw/(max||1));const w=3+8*t;const idle=mw<.05;const s=1+0.25*t;const al=+(10*s).toFixed(2);const ah=+(8*s).toFixed(2);const start=reverse?b:a,end=reverse?a:b;const mid=id+"Arr";const marker=`<marker id="${mid}" markerWidth="${al}" markerHeight="${ah}" refX="${al}" refY="${+(ah/2).toFixed(2)}" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L0,${ah} L${al},${+(ah/2).toFixed(2)} z" fill="${color}"/></marker>`;const path=`<path class="flow ${idle?"idle":""}" d="M ${start.x} ${start.y} Q ${(start.x+end.x)/2} ${(start.y+end.y)/2-22} ${end.x} ${end.y}" stroke="${color}" style="color:${color}" stroke-width="${w.toFixed(1)}" marker-end="url(#${mid})"/>`;return{marker,path};}
-function worldToScene(nodeKey){const s=parseFloat(world.style.getPropertyValue('--scene-scale'))||0.78;return{x:scene.clientWidth/2+(P[nodeKey].x-500)*s,y:scene.clientHeight-(500-P[nodeKey].y)*s};}
+function worldToScene(nodeKey){const s=parseFloat(world.style.getPropertyValue('--scene-scale'))||0.78;return{x:scene.clientWidth/2+(P[nodeKey].x-500)*s,y:P[nodeKey].y*s};}
 function simulateTo(targetT){
   const p=parms();let sim={t:360,soc:45};
   const steps=targetT>=360?(targetT-360)/15:(1440-360+targetT)/15;
