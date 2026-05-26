@@ -26,17 +26,17 @@ button.secondary{background:rgba(255,255,255,.82);color:var(--ink);border:1px so
 .dot{width:10px;height:10px;border-radius:99px;box-shadow:0 0 12px currentColor}
 .scene{position:relative;height:380px;margin:10px 14px 14px;border-radius:34px;overflow:hidden;border:1px solid #fff;background:linear-gradient(145deg,#dff8ff,#fff 52%,#efffe8)}
 .world{position:absolute;left:50%;top:0;width:1000px;height:500px;transform:translateX(-50%) scale(var(--scene-scale,.78));transform-origin:top center}
-.cloud{position:absolute;background:rgba(255,255,255,.65);border-radius:999px}.c1{width:94px;height:28px;left:55px;top:38px}.c2{width:150px;height:34px;right:80px;top:44px}
+
 .island{position:absolute;left:50%;top:51%;width:960px;height:310px;transform:translate(-50%,0) perspective(420px) rotateX(22deg);transform-origin:50% 0%;border-radius:30px 30px 80px 80px;clip-path:polygon(5% 0%,95% 0%,100% 100%,0% 100%);background:linear-gradient(145deg,#b7ed9b,#dcf9c9,#a9eadb);border:2px solid rgba(255,255,255,.82);box-shadow:0 30px 55px rgba(70,116,140,.18),inset 0 0 40px rgba(255,255,255,.42)}
 svg.flows{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 .node{position:absolute;transform:translate(-50%,-50%);transition:.2s}.node:hover{transform:translate(-50%,-57%);filter:brightness(1.04)}
 .node:after{content:attr(data-label);position:absolute;left:50%;top:50%;transform:translateX(-50%);margin-top:62px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.75);color:var(--muted);font-size:20.7px;font-weight:1000;white-space:nowrap}
-.pv{width:82px;height:112px;border-radius:24px;background:rgba(255,255,255,.76);padding:10px;box-shadow:0 14px 30px rgba(46,94,135,.16)}
+.pv{width:112px;height:112px;border-radius:24px;background:rgba(255,255,255,.76);padding:10px;box-shadow:0 14px 30px rgba(46,94,135,.16)}
 .pvgrid{height:100%;border-radius:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:linear-gradient(145deg,#69c0ff,#2765ba);padding:6px;transform:skewY(-8deg)}
 .pvgrid i{border-radius:3px;background:rgba(255,255,255,.28)}
-.box{width:82px;height:112px;border-radius:26px;background:linear-gradient(145deg,#fff,#effaff);box-shadow:0 14px 32px rgba(55,87,120,.17);display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #fff;font-size:15px;font-weight:1000;color:#5b7087}
+.box{width:112px;height:112px;border-radius:26px;background:linear-gradient(145deg,#fff,#effaff);box-shadow:0 14px 32px rgba(55,87,120,.17);display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #fff;font-size:15px;font-weight:1000;color:#5b7087}
 .icon{width:40px;height:40px;border-radius:14px;background:#e7fbff;color:#22a6d9;display:flex;align-items:center;justify-content:center;margin-bottom:5px;font-size:24px}
-.bess{width:82px;height:112px;border-radius:28px;background:linear-gradient(145deg,#fff,#f0fbff);box-shadow:0 14px 32px rgba(55,87,120,.18);padding:12px;border:1px solid #fff}
+.bess{width:112px;height:112px;border-radius:28px;background:linear-gradient(145deg,#fff,#f0fbff);box-shadow:0 14px 32px rgba(55,87,120,.18);padding:12px;border:1px solid #fff}
 .bn{font-size:13px;font-weight:1000;color:#607287}.bat{margin-top:6px;height:40px;border-radius:15px;background:#e8eef4;padding:4px;border:2px solid #d9e5ed;position:relative}.bat:after{content:"";position:absolute;right:-6px;top:12px;width:7px;height:13px;background:#d9e5ed;border-radius:0 5px 5px 0}.fill{height:100%;border-radius:10px;transition:.3s;box-shadow:0 0 15px currentColor}.meta{margin-top:6px;display:flex;justify-content:space-between;color:var(--muted);font-size:12px;font-weight:900}
 .tower{width:82px;height:112px;display:flex;align-items:center;justify-content:center;color:#7c8da0}
 .warn{outline:4px solid rgba(255,196,62,.35)}.off{opacity:.45;filter:grayscale(.9)}
@@ -44,9 +44,9 @@ svg.flows{position:absolute;inset:0;width:100%;height:100%;overflow:visible;poin
 #starsLayer{position:absolute;inset:0;z-index:1;pointer-events:none;transition:opacity 1.8s ease}
 .star{position:absolute;border-radius:50%;background:#fff;pointer-events:none;animation:twinkle 2.5s ease-in-out infinite alternate}
 @keyframes twinkle{from{opacity:.1}to{opacity:.85}}
-#sunEl{position:absolute;width:104px;height:104px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fffde0,#ffe040,#ffa500);box-shadow:0 0 50px 20px rgba(255,200,0,.7),0 0 110px 40px rgba(255,165,0,.3);z-index:2;pointer-events:none;transform:translate(-50%,-50%);transition:left .7s,top .7s,opacity 1.3s}
+#sunEl{position:absolute;width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fffde0,#ffe040,#ffa500);box-shadow:0 0 35px 14px rgba(255,200,0,.7),0 0 76px 28px rgba(255,165,0,.3);z-index:2;pointer-events:none;transform:translate(-50%,-50%);transition:left .7s,top .7s,opacity 1.3s}
 #moonEl{position:absolute;width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 36% 36%,#fff,#cdd9f0);box-shadow:0 0 30px 14px rgba(180,210,255,.6);z-index:2;pointer-events:none;transform:translate(-50%,-50%);transition:left .7s,top .7s,opacity 1.3s}
-.cloud{z-index:3}.world{z-index:4}
+.world{z-index:4}
 .side{padding:16px}.panelHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}h2{margin:0;font-size:18px}
 .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.stat{background:rgba(255,255,255,.65);border:1px solid #fff;border-radius:20px;padding:11px;font-size:12px;color:var(--muted)}.stat b{display:block;margin-top:4px;font-size:17px;color:var(--ink)}
 .controls{display:grid;gap:10px;margin:12px 0}.row{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:13px;font-weight:800}.row input{width:55%}
@@ -89,8 +89,7 @@ code{background:rgba(255,255,255,.75);border-radius:7px;padding:2px 5px}
       </div>
       <div class="scene" id="scene">
         <div id="skyBg"></div><div id="starsLayer"></div><div id="sunEl"></div><div id="moonEl"></div>
-        <div class="cloud c1"></div><div class="cloud c2"></div>
-        <div class="world" id="world"><div class="island"></div><svg class="flows" id="flows" viewBox="0 0 1000 500"></svg><div id="nodes"></div></div>
+<div class="world" id="world"><div class="island"></div><svg class="flows" id="flows" viewBox="0 0 1000 500"></svg><div id="nodes"></div></div>
         <div id="tourSpot"></div>
         <div id="tourBubble"><div id="tourTitle"></div><div id="tourBody"></div><div id="tourNav"><span id="tourProg"></span><button id="tourNext">Next →</button><button id="tourExit" class="secondary">Exit</button></div></div>
       </div>
@@ -123,7 +122,7 @@ code{background:rgba(255,255,255,.75);border-radius:7px;padding:2px 5px}
 </main>
 <script>
 const P={PV1:{x:100,y:255},PV2:{x:100,y:450},DC:{x:295,y:255},BESS:{x:295,y:450},PCS:{x:490,y:255},XFMR:{x:685,y:255},GRID:{x:880,y:255}};
-const ports={PV1_r:{x:P.PV1.x+41,y:P.PV1.y},PV2_r:{x:P.PV2.x+41,y:P.PV2.y},DC_l:{x:P.DC.x-41,y:P.DC.y},DC_r:{x:P.DC.x+41,y:P.DC.y},DC_b:{x:P.DC.x,y:P.DC.y+56},BESS_t:{x:P.BESS.x,y:P.BESS.y-56},PCS_l:{x:P.PCS.x-41,y:P.PCS.y},PCS_r:{x:P.PCS.x+41,y:P.PCS.y},XFMR_l:{x:P.XFMR.x-41,y:P.XFMR.y},XFMR_r:{x:P.XFMR.x+41,y:P.XFMR.y},GRID_l:{x:P.GRID.x-41,y:P.GRID.y}};
+const ports={PV1_r:{x:P.PV1.x+56,y:P.PV1.y},PV2_r:{x:P.PV2.x+56,y:P.PV2.y},DC_l:{x:P.DC.x-56,y:P.DC.y},DC_r:{x:P.DC.x+56,y:P.DC.y},DC_b:{x:P.DC.x,y:P.DC.y+56},BESS_t:{x:P.BESS.x,y:P.BESS.y-56},PCS_l:{x:P.PCS.x-56,y:P.PCS.y},PCS_r:{x:P.PCS.x+56,y:P.PCS.y},XFMR_l:{x:P.XFMR.x-56,y:P.XFMR.y},XFMR_r:{x:P.XFMR.x+56,y:P.XFMR.y},GRID_l:{x:P.GRID.x-41,y:P.GRID.y}};
 const state={t:360,soc:45,playing:false,interval:null,pv:0,charge:0,discharge:0,grid:0,pcs:0,load:0,history:[],chartRange:"24h",chartMetric:"power",touring:false,tourStep:0};
 const TOUR_STEPS=[
   {t:360, title:"06:00 · Sunrise",        body:"The sun rises and PV panels begin generating their first DC power — faintly at first.",                              node:"PV1"},
@@ -205,7 +204,7 @@ function updateSky(){
   const{top,bot}=skyPalette(state.t);
   const sky=document.getElementById('skyBg');
   if(sky)sky.style.background=`linear-gradient(to bottom,rgb(${top}) 0%,rgb(${bot}) 100%)`;
-  function arcPos(phase){const ax=(phase-.25)/.5;return{x:(1.7+ax*96.6).toFixed(1),y:(103-98*Math.sin(ax*Math.PI)).toFixed(1)};}
+  function arcPos(phase){const ax=(phase-.25)/.5;return{x:(ax*100).toFixed(1),y:(103-130*Math.sin(ax*Math.PI)).toFixed(1)};}
   const sPhase=(h/24)%1,mPhase=((h+12)/24)%1;
   const sun=document.getElementById('sunEl');
   if(sun){const{x,y}=arcPos(sPhase);sun.style.left=x+'%';sun.style.top=y+'%';sun.style.opacity='1';}
@@ -214,7 +213,6 @@ function updateSky(){
   const stars=document.getElementById('starsLayer');
   if(stars){const ni=h<=6?Math.max(0,1-h/5.5):h>=18?Math.min(1,(h-18)/5):0;stars.style.opacity=ni.toFixed(3);}
   const dayF=h>=6&&h<=18?1:h<6?h/6:(24-h)/6;
-  document.querySelectorAll('.cloud').forEach(c=>{c.style.opacity=(0.25+0.75*dayF).toFixed(2);});
 }
 function render(){fit();let p=parms();$("timeLabel").textContent=`${hms(state.t)} · conceptual_sld · 15m step`;let mode=state.charge>.05?"charging":state.discharge>.05?"discharging":"idle";$("mode").textContent=mode;let soc=state.soc, socColor=colorSoc(soc);
 nodes.innerHTML=`
@@ -231,7 +229,7 @@ $("stats").innerHTML=`<div class="stat">Time<b>${hms(state.t)}</b></div><div cla
 updateSky();drawSpider();renderChart()}
 function drawSpider(){let p=parms(),vals=[state.pv/p.pv,state.soc/100,state.pcs/p.pcs,state.grid/p.cap,state.load/1.5].map(v=>Math.max(0,Math.min(1,v)));let cx=130,cy=112,r=78,labels=["PV","SOC","PCS","Grid","Load"];let pts=vals.map((v,i)=>{let a=-Math.PI/2+i*2*Math.PI/5;return[cx+Math.cos(a)*r*v,cy+Math.sin(a)*r*v]});let axes=labels.map((l,i)=>{let a=-Math.PI/2+i*2*Math.PI/5,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r,tx=cx+Math.cos(a)*(r+20),ty=cy+Math.sin(a)*(r+20);return`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#d2e2ee"/><text x="${tx}" y="${ty}" text-anchor="middle" font-size="11" font-weight="900" fill="#66758a">${l}</text>`}).join("");$("spider").innerHTML=`${axes}<polygon points="${pts.map(p=>p.join(",")).join(" ")}" fill="rgba(74,191,255,.25)" stroke="var(--ac)" stroke-width="3"/><circle cx="${cx}" cy="${cy}" r="3" fill="var(--ink)"/>`}
 function renderChart(){const svg=$("chart"),leg=$("chartLegend");if(!svg)return;const n=state.chartRange==="24h"?24:168;const data=state.history.slice(-n);if(!data.length){svg.innerHTML="";if(leg)leg.innerHTML="";return;}const PW=CW-CML-CMR,PH=CH-CMT-CMB;const xOf=i=>CML+(i/Math.max(data.length-1,1))*PW;let series;if(state.chartMetric==="power"){series=[{label:"PV Gen",color:CHART_COLORS.pv,vals:data.map(h=>h.pv),current:state.pv},{label:"Grid Export",color:CHART_COLORS.grid,vals:data.map(h=>h.grid),current:state.grid},{label:"BESS Chg",color:CHART_COLORS.chg,vals:data.map(h=>h.charge),current:state.charge},{label:"BESS Dis",color:CHART_COLORS.dis,vals:data.map(h=>h.discharge),current:state.discharge}];}else{const acc={pv:0,dis:0,chg:0,grid:0};const cum=data.map(h=>({pv:(acc.pv+=h.pv*0.25),dis:(acc.dis+=h.discharge*0.25),chg:(acc.chg+=h.charge*0.25),grid:(acc.grid+=h.grid*0.25)}));const last=cum.length?cum[cum.length-1]:{pv:0,dis:0,chg:0,grid:0};series=[{label:"PV MWh",color:CHART_COLORS.pv,vals:cum.map(c=>c.pv),current:last.pv},{label:"BESS Dis MWh",color:CHART_COLORS.dis,vals:cum.map(c=>c.dis),current:last.dis},{label:"BESS Chg MWh",color:CHART_COLORS.chg,vals:cum.map(c=>c.chg),current:last.chg},{label:"Export MWh",color:CHART_COLORS.grid,vals:cum.map(c=>c.grid),current:last.grid}];}const rawMax=Math.max(...series.flatMap(s=>s.vals),0.01);const yMax=[0.5,1,2,5,10,20,50,100,200,500].find(v=>v>=rawMax)||rawMax;const yOf=v=>CMT+PH-(v/yMax)*PH;const unit=state.chartMetric==="power"?"MW":"MWh";let out="";[0,.25,.5,.75,1].forEach(f=>{const y=yOf(yMax*f).toFixed(1);const val=(yMax*f).toFixed(yMax*f===0?0:yMax*f<1?2:1);out+=`<line x1="${CML}" y1="${y}" x2="${CW-CMR}" y2="${y}" stroke="#d2e2ee" stroke-width="1"/>`;out+=`<text x="${CML-4}" y="${+y+4}" text-anchor="end" font-size="10" fill="#66758a" font-weight="900">${val}</text>`;});out+=`<text x="${CML-2}" y="${CMT-3}" text-anchor="end" font-size="10" fill="#66758a" font-weight="700">${unit}</text>`;const xLabels=state.chartRange==="24h"?[0,.25,.5,.75,1].map(f=>{const t=Math.round(data[0].t+f*data.length*15)%1440;return[hms(t),f];}):Array.from({length:7},(_,i)=>[`D${i+1}`,i/6]);xLabels.forEach(([lbl,frac])=>{const x=(CML+frac*PW).toFixed(1);out+=`<line x1="${x}" y1="${CMT}" x2="${x}" y2="${CH-CMB}" stroke="#d2e2ee" stroke-width="1" stroke-dasharray="3 3"/>`;out+=`<text x="${x}" y="${CH-CMB+14}" text-anchor="middle" font-size="10" fill="#66758a" font-weight="900">${lbl}</text>`;});series.forEach(s=>{const pts=s.vals.map((v,i)=>`${xOf(i).toFixed(1)},${yOf(v).toFixed(1)}`).join(" ");out+=`<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>`;});svg.innerHTML=out;if(leg)leg.innerHTML=series.map(s=>`<span><i style="background:${s.color}"></i>${s.label}<b style="margin-left:5px;color:var(--ink)">${s.current.toFixed(2)} ${unit}</b></span>`).join("");}
-function play(){state.playing=!state.playing;$("play").textContent=state.playing?"Pause":"Play 24h";if(state.playing){state.interval=setInterval(()=>step(60),Math.max(50,600/parms().speed))}else clearInterval(state.interval)}
+function play(){state.playing=!state.playing;$("play").textContent=state.playing?"Pause":"Play 24h";if(state.playing){state.interval=setInterval(()=>step(60),Math.max(50,1200/parms().speed))}else clearInterval(state.interval)}
 $("play").onclick=play;$("step").onclick=()=>step(60);$("tour").onclick=startTour;$("tourNext").onclick=()=>{const next=state.tourStep+1;if(next<TOUR_STEPS.length){state.tourStep=next;showTourStep(next);}else exitTour();};$("tourExit").onclick=exitTour;$("reset").onclick=()=>{state.t=360;state.soc=45;state.pv=state.charge=state.discharge=state.grid=state.pcs=0;state.history=[];render()};["pvSize","bessSize","pcsSize","exportCap","speed","lineScale"].forEach(id=>{const el=$(id),val=$(id+"Val");el.oninput=()=>{if(val)val.textContent=id==="pcsSize"?el.value+" C":id==="lineScale"?el.value+"×":el.value;render()};});["chartRange","chartMetric"].forEach(groupId=>{const grp=$(groupId);if(!grp)return;grp.querySelectorAll(".tBtn").forEach(btn=>{btn.onclick=()=>{state[groupId]=btn.dataset.v;grp.querySelectorAll(".tBtn").forEach(b=>b.classList.toggle("active",b===btn));renderChart();};});});window.addEventListener("resize",fit);initStars();render();
 </script>
 </body>
